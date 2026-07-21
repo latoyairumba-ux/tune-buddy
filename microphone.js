@@ -1,67 +1,66 @@
-// // microphone.js
-// let audioContext = null;
-// let analyser = null;
-// let dataArray = null;
-
-// export let sampleRate = 44100; // Default fallback, will update dynamically
-
-// export async function initMicrophone() {
-//     if (audioContext) return; // Already initialized
-
-//     // Request browser microphone access
-//     const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-    
-//     audioContext = new (window.AudioContext || window.webkitAudioContext)();
-//     sampleRate = audioContext.sampleRate; // Get exact hardware sample rate
-
-//     const source = audioContext.createMediaStreamSource(stream);
-//     analyser = audioContext.createAnalyser();
-    
-//     // 2048 or 4096 is ideal for catching low guitar frequencies (like Low E)
-//     analyser.fftSize = 2048; 
-    
-//     source.connect(analyser);
-//     dataArray = new Float32Array(analyser.fftSize);
-// }
-
-// export function getAudioBuffer() {
-//     if (!analyser || !dataArray) return null;
-    
-//     // Pulls the latest raw time-domain audio data into our array
-//     analyser.getFloatTimeDomainData(dataArray);
-//     return dataArray;
-// }
-
 // microphone.js
+
 let audioContext = null;
 let analyser = null;
 let dataArray = null;
-
-export let sampleRate = 44100; // Default fallback, dynamically updates on init
+let sampleRate = 44100;
 
 export async function initMicrophone() {
-    if (audioContext) return; // Prevent multiple initializations
+    // Already running
+    if (audioContext) {
+        return;
+    }
 
-    // Request browser mic access
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-    
-    audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    sampleRate = audioContext.sampleRate; // Read exact hardware sample rate
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+            audio: {
+                echoCancellation: false,
+                noiseSuppression: false,
+                autoGainControl: false
+            },
+            video: false
+        });
 
-    const source = audioContext.createMediaStreamSource(stream);
-    analyser = audioContext.createAnalyser();
-    
-    // 2048 is required to give the pitch detector enough data samples for low frequencies
-    analyser.fftSize = 2048; 
-    
-    source.connect(analyser);
-    dataArray = new Float32Array(analyser.fftSize);
+        audioContext = new (
+            window.AudioContext ||
+            window.webkitAudioContext
+        )();
+
+        // Get real hardware sample rate
+        sampleRate = audioContext.sampleRate;
+
+        const source = audioContext.createMediaStreamSource(stream);
+        analyser = audioContext.createAnalyser();
+
+        // Larger size helps detect low guitar strings
+        analyser.fftSize = 4096;
+        analyser.smoothingTimeConstant = 0.8;
+
+        source.connect(analyser);
+
+        dataArray = new Float32Array(analyser.fftSize);
+
+        if (audioContext.state === "suspended") {
+            await audioContext.resume();
+        }
+
+        console.log("Microphone ready. Sample rate:", sampleRate);
+
+    } catch (error) {
+        console.error("Microphone initialization failed:", error);
+        throw error;
+    }
 }
 
 export function getAudioBuffer() {
-    if (!analyser || !dataArray) return null;
-    
-    // Capture the current raw time-domain snapshot
+    if (!analyser || !dataArray) {
+        return null;
+    }
+
     analyser.getFloatTimeDomainData(dataArray);
     return dataArray;
+}
+
+export function getSampleRate() {
+    return sampleRate;
 }

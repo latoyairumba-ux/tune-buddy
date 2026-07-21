@@ -4,19 +4,80 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tune Buddy</title>
+
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="tuner-container">
-        <h1>TUNE BUDDY</h1>
-        
-        <button id="E2">Click to Start Tuner</button>
-        
-        <div id="note-display">--</div>
-        <div id="freq-display">0.0 Hz</div>
-        <div id="status-display">Press start to begin</div>
+
+<div class="tuner-container">
+
+    <h1>Tune Buddy</h1>
+
+    <button id="start-btn" class="start-button">
+        🎤 Start Tuner
+    </button>
+
+    <div class="string-buttons">
+
+        <button class="string-btn" data-note="E2">
+            E2
+        </button>
+
+        <button class="string-btn" data-note="A2">
+            A2
+        </button>
+
+        <button class="string-btn" data-note="D3">
+            D3
+        </button>
+
+        <button class="string-btn" data-note="G3">
+            G3
+        </button>
+
+        <button class="string-btn" data-note="B3">
+            B3
+        </button>
+
+        <button class="string-btn" data-note="E4">
+            E4
+        </button>
+
     </div>
 
-    <script type="module" src="script.js"></script>
+    <div class="display">
+
+        <div id="note-display" class="note-display">
+            --
+        </div>
+
+        <div id="freq-display" class="freq-display">
+            0.0 Hz
+        </div>
+
+        <div id="cents-display" class="cents-display">
+            0¢
+        </div>
+
+        <div id="status-display" class="status-display">
+            Press "Start Tuner"
+        </div>
+
+    </div>
+
+    <div class="meter">
+
+        <div class="meter-bar">
+
+            <div id="meter-indicator"></div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script type="module" src="script.js"></script>
+
 </body>
 </html>

@@ -1,61 +1,228 @@
-body {
-    background-color: #121214;                      
-    font-family: system-ui, -apple-system, sans-serif;
-    color: #e1e1e6;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
-}
+    
+    /* styles.css */
 
-.tuner-container {
-    text-align: center;
-    background-color: #202024;
-    padding: 2.5rem;
-    border-radius: 12px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-    min-width: 320px;
-}
+    * {
+        box-sizing: border-box;
+        font-family: Arial, Helvetica, sans-serif;
+    }
 
-h1 {
-    color: #e308a9;
-    margin-top: 0;
-    letter-spacing: 2px;
-}
+    body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: #111827;
+        color: white;
+    }
 
-button {
-    background-color: #e308a9;    
-    color: white;
-    border: none;
-    padding: 12px 24px;
-    font-size: 1rem;
-    font-weight: bold;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background 0.2s;
-    margin-bottom: 20px;
-}
 
-button:hover {
-    background-color: #00875f;
-}
+    .tuner-container {
+        width: 90%;
+        max-width: 450px;
+        background: #1f2937;
+        padding: 30px;
+        border-radius: 20px;
+        text-align: center;
+        box-shadow: 0 0 25px rgba(0,0,0,0.5);
+    }
 
-#note-display {
-    font-size: 4rem;
-    font-weight: bold;
-    color: #ffffff;
-    margin: 10px 0;
-}
 
-#freq-display {
-    font-size: 1.2rem;
-    color: #8d8d99;
-    margin-bottom: 10px;
-}
+    h1 {
+        margin-top: 0;
+        margin-bottom: 25px;
+        font-size: 2.2rem;
+        letter-spacing: 3px;
+        color: #60a5fa;
+    }
 
-#status-display {
-    font-size: 1.1rem;
-    font-weight: 500;
-    color: #00b37e;
+
+    /* Start button */
+
+    .start-button {
+        width: 100%;
+        padding: 14px;
+        margin-bottom: 25px;
+
+        border: none;
+        border-radius: 10px;
+
+        background: #2563eb;
+        color: white;
+
+        font-size: 1.1rem;
+        cursor: pointer;
+
+        transition: 0.2s;
+    }
+
+
+    .start-button:hover {
+        background: #1d4ed8;
+    }
+
+
+    /* String buttons */
+
+    .string-buttons {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin-bottom: 30px;
+    }
+
+
+    .string-btn {
+
+        padding: 15px 5px;
+
+        border: 2px solid #374151;
+        border-radius: 12px;
+
+        background: #111827;
+        color: white;
+
+        font-size: 1.1rem;
+        cursor: pointer;
+
+        transition: 0.2s;
+    }
+
+
+    .string-btn:hover {
+        border-color: #60a5fa;
+    }
+
+
+    /* Selected string */
+
+    .string-btn.selected {
+
+        background: #2563eb;
+        border-color: #93c5fd;
+
+        transform: scale(1.05);
+
+    }
+
+
+    /* Displays */
+
+    .note-display {
+
+        font-size: 4rem;
+        font-weight: bold;
+
+        color: #f9fafb;
+    }
+
+
+    .freq-display {
+
+        font-size: 1.4rem;
+        margin-top: 10px;
+
+        color: #9ca3af;
+    }
+
+
+    .cents-display {
+
+        font-size: 1.5rem;
+        margin-top: 10px;
+
+    }
+
+
+    .status-display {
+
+        margin-top: 15px;
+
+        font-size: 1.3rem;
+        font-weight: bold;
+
+    }
+
+
+    /* Status colors */
+
+    .status-flat {
+        color: #38bdf8;
+    }
+
+
+    .status-sharp {
+        color: #fb923c;
+    }
+
+
+    .status-tuned {
+        color: #4ade80;
+    }
+
+
+    /* Tuning meter */
+
+    .meter {
+
+        margin-top: 30px;
+
+    }
+
+
+    .meter-bar {
+
+        height: 20px;
+
+        width: 100%;
+
+        background: #374151;
+
+        border-radius: 20px;
+
+        overflow: hidden;
+
+        position: relative;
+
+    }
+
+
+    #meter-indicator {
+
+        position: absolute;
+
+        height: 100%;
+
+        width: 20px;
+
+        left: 50%;
+
+        transform: translateX(-50%);
+
+        background: white;
+
+        border-radius: 50%;
+
+        transition: left 0.15s ease;
+
+    }
+
+
+    /* Mobile adjustments */
+
+    @media(max-width:400px){
+
+        .tuner-container {
+            padding:20px;
+        }
+
+
+        .note-display {
+            font-size:3rem;
+        }
+
+    }
+    #meter-indicator {
+    width: 16px;
+    height: 16px;
 }

@@ -1,58 +1,77 @@
 // pitch.js
+
 export function detectPitch(buffer, sampleRate) {
-    if (!buffer) return -1;
+    if (!buffer || !sampleRate) {
+        return -1;
+    }
 
-    let size = buffer.length;
+    const size = buffer.length;
+
+    // 1. Volume Check (RMS)
     let rms = 0;
-
-    // 1. Calculate Root Mean Square (Volume) to ignore background silence
     for (let i = 0; i < size; i++) {
         rms += buffer[i] * buffer[i];
     }
     rms = Math.sqrt(rms / size);
-    if (rms < 0.015) return -1; // Too quiet
 
-    // 2. Autocorrelation
-    const r1 = 0;
-    const r2 = size;
-    const len = r2 - r1;
-    const c = new Float32Array(len);
+    if (rms < 0.01) {
+        return -1;
+    }
 
-    for (let i = 0; i < len; i++) {
-        for (let j = 0; j < len - i; j++) {
-            c[i] = c[i] + buffer[r1 + j] * buffer[r1 + j + i];
+    // 2. Frequency Range Limits for Guitars
+    const MIN_FREQ = 50;  
+    const MAX_FREQ = 500; 
+
+    const minOffset = Math.floor(sampleRate / MAX_FREQ);
+    const maxOffset = Math.floor(sampleRate / MIN_FREQ);
+
+    // 3. Fast Autocorrelation
+    let bestOffset = -1;
+    let highestCorrelation = 0;
+
+    for (let offset = minOffset; offset <= maxOffset && offset < size; offset++) {
+        let sum = 0;
+        for (let i = 0; i < size - offset; i++) {
+            sum += buffer[i] * buffer[i + offset];
+        }
+
+        if (sum > highestCorrelation) {
+            highestCorrelation = sum;
+            bestOffset = offset;
         }
     }
 
-    // 3. Find the peak after the initial zero-lag drop-off
-    let d = 0;
-    while (d < len - 1 && c[d] > c[d + 1]) {
-        d++;
+    if (bestOffset === -1) {
+        return -1;
     }
 
-    // If we ran out of buffer space, exit
-    if (d >= len - 1) return -1;
+    // 4. Parabolic Interpolation
+    let refinedOffset = bestOffset;
+    if (bestOffset > minOffset && bestOffset < maxOffset) {
+        let prevSum = 0;
+        let nextSum = 0;
 
-    let maxval = -1;
-    let maxpos = -1;
+        for (let i = 0; i < size - (bestOffset - 1); i++) {
+            prevSum += buffer[i] * buffer[i + (bestOffset - 1)];
+        }
+        for (let i = 0; i < size - (bestOffset + 1); i++) {
+            nextSum += buffer[i] * buffer[i + (bestOffset + 1)];
+        }
 
-    // Look for the absolute strongest periodic peak
-    for (let i = d; i < len; i++) {
-        if (c[i] > maxval) {
-            maxval = c[i];
-            maxpos = i;
+        const a = (prevSum + nextSum - 2 * highestCorrelation) / 2;
+        const b = (nextSum - prevSum) / 2;
+
+        if (a !== 0) {
+            refinedOffset = bestOffset - b / (2 * a);
         }
     }
 
-    let T0 = maxpos;
+    // 5. Convert to Frequency
+    const frequency = sampleRate / refinedOffset;
 
-    // 4. Convert period distance directly to Hz
-    if (T0 !== -1 && T0 !== 0) {
-        const freq = sampleRate / T0;
-        // Restrict to standard guitar ranges (approx 50Hz to 500Hz) to filter out harmonics
-        if (freq > 50 && freq < 500) {
-            return freq;
-        }
+    if (frequency < MIN_FREQ || frequency > MAX_FREQ) {
+        return -1;
     }
-    return -1;
+
+    return frequency;
 }
