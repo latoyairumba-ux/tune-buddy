@@ -47,7 +47,7 @@ export function updateDisplay(noteName, frequency, cents) {
     // Move tuning meter
     const clamped = Math.max(-50, Math.min(50, cents));
 
-    // -50¢ -> 0%
+    // -50¢ -> 0%   
     // 0¢   -> 50%
     // +50¢ -> 100%
     meter.style.left = `${50 + clamped}%`;

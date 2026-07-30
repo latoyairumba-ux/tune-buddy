@@ -1,5 +1,3 @@
-// tuner.js
-
 // Calculate pitch difference in cents
 export function getTuningStatus(frequency, targetFrequency) {
     // Ensure both frequencies exist, are valid numbers, and are greater than 0
