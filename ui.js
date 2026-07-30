@@ -1,6 +1,36 @@
 // ui.js
 import { getTuningMessage } from "./tuner.js";
 
+let soundPlayed = false;
+
+// Synthesize a quick "in-tune" chime tone (880 Hz / A5)
+function playInTuneSound() {
+    if (soundPlayed) return; // Prevent repeated beeping
+
+    try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(880, audioCtx.currentTime); // Pitch (A5)
+
+        // Smooth volume decay
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.3);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.3);
+
+        soundPlayed = true; // Mark played
+    } catch (e) {
+        console.error("Audio playback error:", e);
+    }
+}
+
 export function updateDisplay(noteName, frequency, cents) {
     const noteEl = document.getElementById("note-display");
     const freqEl = document.getElementById("freq-display");
@@ -18,6 +48,7 @@ export function updateDisplay(noteName, frequency, cents) {
             statusEl.className = "status-display";
         }
         if (meter) meter.style.left = "50%";
+        soundPlayed = false; // Reset sound flag when quiet
         return;
     }
 
@@ -32,12 +63,15 @@ export function updateDisplay(noteName, frequency, cents) {
         if (Math.abs(cents) <= 5) {
             statusEl.innerText = "✓ In Tune!";
             statusEl.classList.add("status-tuned");
+            playInTuneSound(); // 🔔 Play chime when in tune!
         } else if (cents < 0) {
             statusEl.innerText = `Flat ${Math.abs(cents)}¢`;
             statusEl.classList.add("status-flat");
+            soundPlayed = false; // Reset so sound plays again when tuned
         } else {
             statusEl.innerText = `Sharp ${cents}¢`;
             statusEl.classList.add("status-sharp");
+            soundPlayed = false; // Reset so sound plays again when tuned
         }
     }
 
