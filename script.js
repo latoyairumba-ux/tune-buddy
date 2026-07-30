@@ -54,20 +54,23 @@ async function startTuner() {
 }
 
 // Main tuner loop
-function tunerLoop() {
-    if (!isRunning) {
-        return;
-    }
+ function tunerLoop() {
+    if (!isRunning) return;
 
     const buffer = getAudioBuffer();
     const sampleRate = getSampleRate();
 
-    // Wait until microphone buffer data exists
     if (!buffer) {
         requestAnimationFrame(tunerLoop);
         return;
     }
 
+    // --- ADD THIS DIAGNOSTIC LOG ---
+    let sum = 0;
+    for (let i = 0; i < buffer.length; i++) sum += buffer[i] * buffer[i];
+    const rms = Math.sqrt(sum / buffer.length);
+    console.log("Mic Input Volume (RMS):", rms.toFixed(5));
+    // --------------------------------
     const frequency = detectPitch(buffer, sampleRate);
 
     if (frequency !== -1 && frequency > 0) {
