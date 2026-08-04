@@ -1,83 +1,96 @@
 // ui.js
+
+// import
 import { getTuningMessage } from "./tuner.js";
 
-let soundPlayed = false;
+// Success tone (plays once when note becomes in tune)
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+let wasInTune = false;
 
-// Synthesize a quick "in-tune" chime tone (880 Hz / A5)
-function playInTuneSound() {
-    if (soundPlayed) return; // Prevent repeated beeping
-
-    try {
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-
-        osc.type = "sine";
-        osc.frequency.setValueAtTime(880, audioCtx.currentTime); // Pitch (A5)
-
-        // Smooth volume decay
-        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.3);
-
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.3);
-
-        soundPlayed = true; // Mark played
-    } catch (e) {
-        console.error("Audio playback error:", e);
+function playInTuneTone() {
+    if (audioCtx.state === "suspended") {
+        audioCtx.resume();
     }
+
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+
+    osc.type = "sine";
+    osc.frequency.value = 880; // A5 confirmation tone
+
+    gain.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.15, audioCtx.currentTime + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.15);
+
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.15);
 }
 
 export function updateDisplay(noteName, frequency, cents) {
+
     const noteEl = document.getElementById("note-display");
     const freqEl = document.getElementById("freq-display");
     const centsEl = document.getElementById("cents-display");
     const statusEl = document.getElementById("status-display");
     const meter = document.getElementById("meter-indicator");
 
-    // Check if no sound / invalid pitch is detected
-    if (!noteName || frequency === -1 || frequency === null || cents === null) {
-        if (noteEl) noteEl.innerText = noteName || "--";
-        if (freqEl) freqEl.innerText = "-- Hz";
-        if (centsEl) centsEl.innerText = "0¢";
-        if (statusEl) {
-            statusEl.innerText = "Listening...";
-            statusEl.className = "status-display";
-        }
-        if (meter) meter.style.left = "50%";
-        soundPlayed = false; // Reset sound flag when quiet
+    if (!noteName) {
+
+        noteEl.innerText = "--";
+        freqEl.innerText = "0.0 Hz";
+        centsEl.innerText = "0¢";
+        statusEl.innerText = "Listening...";
+
+        statusEl.className = "status-display";
+        meter.style.left = "50%";
+
+        // Reset so the tone can play again next time
+        wasInTune = false;
+
         return;
     }
 
-    // Display active tuning measurements
-    if (noteEl) noteEl.innerText = noteName;
-    if (freqEl) freqEl.innerText = `${frequency.toFixed(1)} Hz`;
-    if (centsEl) centsEl.innerText = `${cents > 0 ? "+" : ""}${cents}¢`;
+    noteEl.innerText = noteName;
+    freqEl.innerText = `${frequency.toFixed(2)} Hz`;
+    centsEl.innerText = `${cents > 0 ? "+" : ""}${cents}¢`;
 
-    if (statusEl) {
-        statusEl.className = "status-display";
+    statusEl.className = "status-display";
 
-        if (Math.abs(cents) <= 5) {
-            statusEl.innerText = "✓ In Tune!";
-            statusEl.classList.add("status-tuned");
-            playInTuneSound(); // 🔔 Play chime when in tune!
-        } else if (cents < 0) {
-            statusEl.innerText = `Flat ${Math.abs(cents)}¢`;
-            statusEl.classList.add("status-flat");
-            soundPlayed = false; // Reset so sound plays again when tuned
-        } else {
-            statusEl.innerText = `Sharp ${cents}¢`;
-            statusEl.classList.add("status-sharp");
-            soundPlayed = false; // Reset so sound plays again when tuned
+    if (Math.abs(cents) <= 5) {
+
+        statusEl.innerText = "✓ In Tune!";
+        statusEl.classList.add("status-tuned");
+
+        // Play confirmation tone only once when entering the in-tune range
+        if (!wasInTune) {
+            playInTuneTone();
+            wasInTune = true;
         }
+
+    } else if (cents < 0) {
+
+        wasInTune = false;
+
+        statusEl.innerText = `Flat ${Math.abs(cents)}¢`;
+        statusEl.classList.add("status-flat");
+
+    } else {
+
+        wasInTune = false;
+
+        statusEl.innerText = `Sharp ${cents}¢`;
+        statusEl.classList.add("status-sharp");
+
     }
 
-    // Move tuning meter (-50¢ -> 0%, 0¢ -> 50%, +50¢ -> 100%)
-    if (meter) {
-        const clamped = Math.max(-50, Math.min(50, cents));
-        meter.style.left = `${50 + clamped}%`;
-    }
+    // Move tuning meter
+    const clamped = Math.max(-50, Math.min(50, cents));
+
+    // -50¢ -> 0%
+    // 0¢   -> 50%
+    // +50¢ -> 100%
+    meter.style.left = `${50 + clamped}%`;
 }
