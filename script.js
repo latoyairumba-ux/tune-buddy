@@ -22,114 +22,199 @@ import {
     updateDisplay
 } from "./ui.js";
 
+
 const startBtn = document.getElementById("start-btn");
 
 let isRunning = false;
-let selectedString = "E2"; // Default string selection
+
+// Default guitar string
+let selectedString = "E2";
+
 
 // Start microphone tuner
 async function startTuner() {
+
     try {
+
         console.log("Starting microphone...");
 
+
+        // Change button immediately after click
         if (startBtn) {
+
             startBtn.innerText = "Listening...";
             startBtn.disabled = true;
+
         }
+
 
         await initMicrophone();
+
+
         isRunning = true;
 
+
         console.log("Tuner running");
+
+
         tunerLoop();
 
+
     } catch (error) {
+
+
         console.error("Could not start tuner:", error);
 
+
+        // Restore button if microphone fails
         if (startBtn) {
+
             startBtn.innerText = "🎤 Start Tuner";
             startBtn.disabled = false;
+
         }
+
     }
+
 }
 
+
+
 // Main tuner loop
- function tunerLoop() {
-    if (!isRunning) return;
+function tunerLoop() {
 
-    const buffer = getAudioBuffer();
-    const sampleRate = getSampleRate();
 
-    if (!buffer) {
-        requestAnimationFrame(tunerLoop);
+    if (!isRunning) {
         return;
     }
 
-    // --- ADD THIS DIAGNOSTIC LOG ---
-    let sum = 0;
-    for (let i = 0; i < buffer.length; i++) sum += buffer[i] * buffer[i];
-    const rms = Math.sqrt(sum / buffer.length);
-    console.log("Mic Input Volume (RMS):", rms.toFixed(5));
-    // --------------------------------
-    const frequency = detectPitch(buffer, sampleRate);
 
-    if (frequency !== -1 && frequency > 0) {
+    const buffer = getAudioBuffer();
+
+    const sampleRate = getSampleRate();
+
+
+    // Wait until microphone data exists
+    if (!buffer) {
+
+        requestAnimationFrame(tunerLoop);
+
+        return;
+    }
+
+
+
+    const frequency = detectPitch(
+        buffer,
+        sampleRate
+    );
+
+
+
+    if (frequency !== -1) {
+
+
         const targetString = getString(selectedString);
 
+
+
         if (targetString) {
+
+
             const cents = getTuningStatus(
                 frequency,
                 targetString.frequency
             );
 
-            // Log frequency so you can verify live audio detection in F12 console
-            console.log(`Detected: ${frequency.toFixed(2)} Hz | Target: ${targetString.frequency} Hz | Cents: ${cents}`);
 
             updateDisplay(
                 selectedString,
                 frequency,
                 cents
             );
+
+
         }
+
+
+
     } else {
-        // ✅ Fixed: Keep selectedString active when mic detects silence
+
+
         updateDisplay(
-            selectedString,
-            -1,
-            null
+            null,
+            null,
+            0
         );
+
+
     }
 
+
+
     requestAnimationFrame(tunerLoop);
+
 }
 
-// Start button listener
+
+
+
+// Start button
 if (startBtn) {
+
+
     startBtn.addEventListener("click", () => {
+
+
         if (!isRunning) {
+
             startTuner();
+
         }
+
+
     });
+
+
 }
 
-// String selection button listeners
+
+
+
+// String selection buttons
 document
     .querySelectorAll(".string-btn")
     .forEach(button => {
+
+
         button.addEventListener("click", () => {
-            // Fallback to button text if dataset.note isn't specified in HTML
-            selectedString = button.dataset.note || button.innerText.trim();
+
+
+            selectedString = button.dataset.note;
+
+
 
             document
                 .querySelectorAll(".string-btn")
                 .forEach(btn => {
+
                     btn.classList.remove("selected");
-                    btn.classList.remove("active");
+
                 });
 
-            button.classList.add("selected");
-            button.classList.add("active");
 
-            console.log("Selected Note:", selectedString);
+
+            button.classList.add("selected");
+
+
+
+            console.log(
+                "Selected:",
+                selectedString
+            );
+
+
         });
+
+
     });

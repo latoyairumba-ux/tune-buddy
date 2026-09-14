@@ -1,6 +1,6 @@
 // ui.js
 
-// import
+// Import
 import { getTuningMessage } from "./tuner.js";
 
 // Success tone (plays once when note becomes in tune)
@@ -19,8 +19,14 @@ function playInTuneTone() {
     osc.frequency.value = 880; // A5 confirmation tone
 
     gain.gain.setValueAtTime(0.0001, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.15, audioCtx.currentTime + 0.01);
-    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.15);
+    gain.gain.exponentialRampToValueAtTime(
+        0.15,
+        audioCtx.currentTime + 0.01
+    );
+    gain.gain.exponentialRampToValueAtTime(
+        0.0001,
+        audioCtx.currentTime + 0.15
+    );
 
     osc.connect(gain);
     gain.connect(audioCtx.destination);
@@ -37,6 +43,7 @@ export function updateDisplay(noteName, frequency, cents) {
     const statusEl = document.getElementById("status-display");
     const meter = document.getElementById("meter-indicator");
 
+    // No detected note
     if (!noteName) {
 
         noteEl.innerText = "--";
@@ -47,50 +54,65 @@ export function updateDisplay(noteName, frequency, cents) {
         statusEl.className = "status-display";
         meter.style.left = "50%";
 
-        // Reset so the tone can play again next time
+        // Allow the confirmation tone to play
+        // when the next note becomes in tune
         wasInTune = false;
 
         return;
     }
 
+    // Display detected note information
     noteEl.innerText = noteName;
     freqEl.innerText = `${frequency.toFixed(2)} Hz`;
     centsEl.innerText = `${cents > 0 ? "+" : ""}${cents}¢`;
 
+    // Get tuning message and state from tuner.js
+    const tuning = getTuningMessage(cents);
+
+    // Display message
+    statusEl.innerText = tuning.text;
+
+    // Reset status classes
     statusEl.className = "status-display";
 
-    if (Math.abs(cents) <= 5) {
+    // Apply the state returned by tuner.js
+    if (tuning.state === "tuned") {
 
-        statusEl.innerText = "✓ In Tune!";
         statusEl.classList.add("status-tuned");
 
-        // Play confirmation tone only once when entering the in-tune range
+        // Play confirmation tone only once
+        // when entering the in-tune range
         if (!wasInTune) {
             playInTuneTone();
             wasInTune = true;
         }
 
-    } else if (cents < 0) {
+    } else if (tuning.state === "flat") {
 
+        statusEl.classList.add("status-flat");
         wasInTune = false;
 
-        statusEl.innerText = `Flat ${Math.abs(cents)}¢`;
-        statusEl.classList.add("status-flat");
+    } else if (tuning.state === "sharp") {
+
+        statusEl.classList.add("status-sharp");
+        wasInTune = false;
+
+    } else if (tuning.state === "danger") {
+
+        // More than 40 cents sharp
+        statusEl.classList.add("status-danger");
+        wasInTune = false;
 
     } else {
 
+        // Neutral / Listening
         wasInTune = false;
-
-        statusEl.innerText = `Sharp ${cents}¢`;
-        statusEl.classList.add("status-sharp");
-
     }
 
     // Move tuning meter
-    const clamped = Math.max(-50, Math.min(50, cents));
-
     // -50¢ -> 0%
     // 0¢   -> 50%
     // +50¢ -> 100%
+    const clamped = Math.max(-50, Math.min(50, cents));
     meter.style.left = `${50 + clamped}%`;
 }

@@ -1,5 +1,6 @@
 // notes.js
 
+
 export const GUITAR_STRINGS = {
     E2: { name: "E2", frequency: 82.41 },
     A2: { name: "A2", frequency: 110.00 },

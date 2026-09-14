@@ -19,6 +19,7 @@ export function getTuningStatus(frequency, targetFrequency) {
     return cents;
 }
 
+
 // Convert cents into a readable tuning state
 export function getTuningMessage(cents) {
     if (cents === null || cents === undefined || Number.isNaN(cents)) {
@@ -44,7 +45,8 @@ export function getTuningMessage(cents) {
         };
     }
 
-    // Danger zone: too sharp (prevents string snapping)
+    // Danger zone: pitch is more than 40 cents sharp.
+    // Recommend loosening the string.
     if (cents > 40) {
         return {
             text: `⚠ Very Sharp ${cents}¢ - Loosen String`,
