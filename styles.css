@@ -1,4 +1,7 @@
-/* styles.css */
+```css
+/* =========================
+   General page
+   ========================= */
 
 * {
     box-sizing: border-box;
@@ -8,45 +11,139 @@
 body {
     margin: 0;
     min-height: 100vh;
+
     display: flex;
     justify-content: center;
     align-items: center;
+
     background: #111827;
     color: white;
+
+    font-size: 100%;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        font-size 0.2s ease;
 }
+
+
+/* =========================
+   Tuner container
+   ========================= */
 
 .tuner-container {
     width: 90%;
     max-width: 450px;
+
     background: #1f2937;
+
     padding: 30px;
+
     border-radius: 20px;
+
     text-align: center;
-    box-shadow: 0 0 25px rgba(0, 0, 0, 0.5);
+
+    box-shadow:
+        0 0 25px rgba(0, 0, 0, 0.5);
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease;
 }
+
+
+/* =========================
+   Settings container
+   ========================= */
+
+.settings-container {
+    width: 90%;
+    max-width: 500px;
+
+    background: #1f2937;
+
+    padding: 30px;
+
+    border-radius: 20px;
+
+    box-shadow:
+        0 0 25px rgba(0, 0, 0, 0.5);
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease;
+}
+
+
+/* =========================
+   Headings
+   ========================= */
 
 h1 {
     margin-top: 0;
     margin-bottom: 25px;
+
     font-size: 2.2rem;
+
     letter-spacing: 3px;
+
     color: #60a5fa;
 }
 
-/* Start button */
+h2 {
+    font-size: 1.4rem;
+
+    color: #93c5fd;
+
+    margin-bottom: 15px;
+}
+
+
+/* =========================
+   Links
+   ========================= */
+
+.settings-link,
+.back-link {
+    display: inline-block;
+
+    margin-bottom: 20px;
+
+    color: #93c5fd;
+
+    font-size: 1rem;
+
+    text-decoration: underline;
+}
+
+.settings-link:hover,
+.back-link:hover {
+    color: #bfdbfe;
+}
+
+
+/* =========================
+   Start button
+   ========================= */
 
 .start-button {
     width: 100%;
+
     padding: 14px;
+
     margin-bottom: 25px;
 
     border: none;
+
     border-radius: 10px;
 
     background: #2563eb;
+
     color: white;
 
     font-size: 1.1rem;
+
     cursor: pointer;
 
     transition: 0.2s;
@@ -56,12 +153,19 @@ h1 {
     background: #1d4ed8;
 }
 
-/* String buttons */
+
+/* =========================
+   String buttons
+   ========================= */
 
 .string-buttons {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
     gap: 12px;
+
     margin-bottom: 30px;
 }
 
@@ -69,12 +173,15 @@ h1 {
     padding: 15px 5px;
 
     border: 2px solid #374151;
+
     border-radius: 12px;
 
     background: #111827;
+
     color: white;
 
     font-size: 1.1rem;
+
     cursor: pointer;
 
     transition: 0.2s;
@@ -84,41 +191,58 @@ h1 {
     border-color: #60a5fa;
 }
 
-/* Selected string */
+
+/* =========================
+   Selected string
+   ========================= */
 
 .string-btn.selected {
     background: #2563eb;
+
     border-color: #93c5fd;
 
     transform: scale(1.05);
 }
 
-/* Displays */
+
+/* =========================
+   Displays
+   ========================= */
 
 .note-display {
     font-size: 4rem;
+
     font-weight: bold;
+
     color: #f9fafb;
 }
 
 .freq-display {
     font-size: 1.4rem;
+
     margin-top: 10px;
+
     color: #9ca3af;
 }
 
 .cents-display {
     font-size: 1.5rem;
+
     margin-top: 10px;
 }
 
 .status-display {
     margin-top: 15px;
+
     font-size: 1.3rem;
+
     font-weight: bold;
 }
 
-/* Status colors */
+
+/* =========================
+   Status colours
+   ========================= */
 
 .status-flat {
     color: #38bdf8;
@@ -132,13 +256,14 @@ h1 {
     color: #4ade80;
 }
 
-/* Very sharp warning */
-
 .status-danger {
     color: #ef4444;
 }
 
-/* Tuning meter */
+
+/* =========================
+   Tuning meter
+   ========================= */
 
 .meter {
     margin-top: 30px;
@@ -146,34 +271,257 @@ h1 {
 
 .meter-bar {
     height: 20px;
+
     width: 100%;
+
     background: #374151;
+
     border-radius: 20px;
+
     overflow: hidden;
+
     position: relative;
 }
 
 #meter-indicator {
     position: absolute;
+
     height: 16px;
+
     width: 16px;
+
     left: 50%;
+
     transform: translateX(-50%);
 
     background: white;
+
     border-radius: 50%;
 
-    transition: left 0.15s ease;
+    transition:
+        left 0.15s ease;
 }
 
-/* Mobile adjustments */
+
+/* =========================
+   Settings
+   ========================= */
+
+.settings-section {
+    margin-bottom: 30px;
+}
+
+.setting {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 20px;
+
+    padding: 20px 0;
+
+    border-top: 1px solid #374151;
+
+    border-bottom: 1px solid #374151;
+}
+
+.setting label {
+    font-size: 1.2rem;
+
+    font-weight: bold;
+}
+
+#dark-mode {
+    width: 24px;
+
+    height: 24px;
+
+    cursor: pointer;
+}
+
+#dark-mode-description,
+#font-size-description {
+    color: #9ca3af;
+
+    line-height: 1.5;
+}
+
+
+/* =========================
+   Font size buttons
+   ========================= */
+
+.font-size-buttons {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 12px;
+
+    margin-top: 20px;
+}
+
+.font-size-buttons button {
+    width: 100%;
+
+    padding: 14px;
+
+    border: 2px solid #374151;
+
+    border-radius: 10px;
+
+    background: #111827;
+
+    color: white;
+
+    font-size: 1rem;
+
+    cursor: pointer;
+}
+
+.font-size-buttons button:hover {
+    border-color: #60a5fa;
+
+    background: #1e293b;
+}
+
+
+/* Disabled font buttons */
+
+.font-size-buttons button:disabled {
+    opacity: 0.5;
+
+    cursor: not-allowed;
+
+    border-color: #374151;
+}
+
+#font-size-value {
+    margin-top: 15px;
+
+    color: #93c5fd;
+
+    font-weight: bold;
+}
+
+
+/* =========================
+   Focus
+   ========================= */
+
+.start-button:focus,
+.string-btn:focus,
+.settings-link:focus,
+.back-link:focus,
+.font-size-buttons button:focus,
+input:focus {
+    outline: 3px solid #facc15;
+
+    outline-offset: 3px;
+}
+
+
+/* =========================
+   Light mode
+   ========================= */
+
+body.light-mode {
+    background: #f3f4f6;
+
+    color: #111827;
+}
+
+body.light-mode .tuner-container,
+body.light-mode .settings-container {
+    background: white;
+
+    color: #111827;
+
+    box-shadow:
+        0 0 25px rgba(0, 0, 0, 0.15);
+}
+
+body.light-mode h1 {
+    color: #2563eb;
+}
+
+body.light-mode h2 {
+    color: #2563eb;
+}
+
+body.light-mode .settings-link,
+body.light-mode .back-link {
+    color: #2563eb;
+}
+
+body.light-mode .string-btn {
+    background: #f3f4f6;
+
+    color: #111827;
+
+    border-color: #d1d5db;
+}
+
+body.light-mode .string-btn:hover {
+    border-color: #2563eb;
+}
+
+body.light-mode .note-display {
+    color: #111827;
+}
+
+body.light-mode .freq-display {
+    color: #4b5563;
+}
+
+body.light-mode #dark-mode-description,
+body.light-mode #font-size-description {
+    color: #4b5563;
+}
+
+body.light-mode .setting {
+    border-color: #d1d5db;
+}
+
+body.light-mode .meter-bar {
+    background: #d1d5db;
+}
+
+body.light-mode .font-size-buttons button {
+    background: #f3f4f6;
+
+    color: #111827;
+
+    border-color: #d1d5db;
+}
+
+body.light-mode .font-size-buttons button:hover {
+    background: #e5e7eb;
+}
+
+body.light-mode .font-size-buttons button:disabled {
+    background: #e5e7eb;
+
+    color: #6b7280;
+}
+
+
+/* =========================
+   Mobile
+   ========================= */
 
 @media (max-width: 400px) {
-    .tuner-container {
+
+    .tuner-container,
+    .settings-container {
         padding: 20px;
     }
 
     .note-display {
         font-size: 3rem;
     }
+
 }
+```

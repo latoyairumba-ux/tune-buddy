@@ -1,0 +1,86 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Tune Buddy Settings</title>
+
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+<div class="settings-container">
+
+    <h1>Settings</h1>
+
+    <section class="settings-section">
+
+        <h2>Appearance</h2>
+
+        <div class="setting">
+
+            <label for="dark-mode">
+                Dark mode
+            </label>
+
+            <input
+                type="checkbox"
+                id="dark-mode"
+                aria-describedby="dark-mode-description">
+
+        </div>
+
+        <p id="dark-mode-description">
+            Turn dark mode on or off.
+        </p>
+
+    </section>
+
+
+    <section class="settings-section">
+
+        <h2>Font size</h2>
+
+        <p id="font-size-description">
+            Change the size of the text in Tune Buddy.
+        </p>
+
+        <div class="font-size-buttons">
+
+            <button
+                id="increase-font"
+                type="button">
+                Increase font size
+            </button>
+
+            <button
+                id="decrease-font"
+                type="button">
+                Decrease font size
+            </button>
+
+        </div>
+
+        <p
+            id="font-size-value"
+            aria-live="polite">
+            Font size: 100%
+        </p>
+
+    </section>
+
+
+    <a href="index.html" class="back-link">
+        Back to Tuner
+    </a>
+
+</div>
+
+
+<script type="module" src="script.js"></script>
+
+</body>
+</html>

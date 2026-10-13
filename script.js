@@ -1,4 +1,6 @@
-// script.js
+// =========================
+// Imports
+// =========================
 
 import {
     initMicrophone,
@@ -23,26 +25,308 @@ import {
 } from "./ui.js";
 
 
-const startBtn = document.getElementById("start-btn");
+// =========================
+// Tuner variables
+// =========================
+
+const startBtn =
+    document.getElementById("start-btn");
 
 let isRunning = false;
 
-// Default guitar string
 let selectedString = "E2";
 
 
+// =========================
+// Dark mode
+// =========================
+
+const darkModeCheckbox =
+    document.getElementById("dark-mode");
+
+
+function applyTheme() {
+
+    const darkMode =
+        localStorage.getItem("darkMode");
+
+
+    if (darkMode === "false") {
+
+        document.body.classList.add(
+            "light-mode"
+        );
+
+    } else {
+
+        document.body.classList.remove(
+            "light-mode"
+        );
+
+    }
+
+
+    if (darkModeCheckbox) {
+
+        darkModeCheckbox.checked =
+            darkMode !== "false";
+
+    }
+
+}
+
+
+applyTheme();
+
+
+if (darkModeCheckbox) {
+
+    darkModeCheckbox.addEventListener(
+        "change",
+        () => {
+
+            if (darkModeCheckbox.checked) {
+
+                localStorage.setItem(
+                    "darkMode",
+                    "true"
+                );
+
+            } else {
+
+                localStorage.setItem(
+                    "darkMode",
+                    "false"
+                );
+
+            }
+
+            applyTheme();
+
+        }
+    );
+
+}
+
+
+// =========================
+// Font size
+// =========================
+
+const increaseFontButton =
+    document.getElementById(
+        "increase-font"
+    );
+
+const decreaseFontButton =
+    document.getElementById(
+        "decrease-font"
+    );
+
+const fontSizeValue =
+    document.getElementById(
+        "font-size-value"
+    );
+
+
+// Default font size
+
+const defaultFontSize = 100;
+
+
+// Minimum font size
+
+const minimumFontSize = 80;
+
+
+// Maximum font size
+
+const maximumFontSize = 160;
+
+
+// Amount changed per click
+
+const fontSizeStep = 10;
+
+
+// =========================
+// Apply font size
+// =========================
+
+function applyFontSize() {
+
+    let savedFontSize =
+        localStorage.getItem(
+            "fontSize"
+        );
+
+
+    let fontSize =
+        savedFontSize
+            ? Number(savedFontSize)
+            : defaultFontSize;
+
+
+    // Check that the value is valid
+
+    if (
+        fontSize < minimumFontSize ||
+        fontSize > maximumFontSize ||
+        Number.isNaN(fontSize)
+    ) {
+
+        fontSize = defaultFontSize;
+
+    }
+
+
+    // Change the font size
+
+    document.documentElement.style.fontSize =
+        fontSize + "%";
+
+
+    // Show current font size
+
+    if (fontSizeValue) {
+
+        fontSizeValue.innerText =
+            "Font size: " + fontSize + "%";
+
+    }
+
+
+    // Disable increase button
+    // at maximum size
+
+    if (increaseFontButton) {
+
+        increaseFontButton.disabled =
+            fontSize >= maximumFontSize;
+
+    }
+
+
+    // Disable decrease button
+    // at minimum size
+
+    if (decreaseFontButton) {
+
+        decreaseFontButton.disabled =
+            fontSize <= minimumFontSize;
+
+    }
+
+}
+
+
+// =========================
+// Increase font size
+// =========================
+
+if (increaseFontButton) {
+
+    increaseFontButton.addEventListener(
+        "click",
+        () => {
+
+            let fontSize =
+                Number(
+                    localStorage.getItem(
+                        "fontSize"
+                    )
+                ) || defaultFontSize;
+
+
+            if (
+                fontSize <
+                maximumFontSize
+            ) {
+
+                fontSize += fontSizeStep;
+
+            }
+
+
+            localStorage.setItem(
+                "fontSize",
+                fontSize
+            );
+
+
+            applyFontSize();
+
+        }
+    );
+
+}
+
+
+// =========================
+// Decrease font size
+// =========================
+
+if (decreaseFontButton) {
+
+    decreaseFontButton.addEventListener(
+        "click",
+        () => {
+
+            let fontSize =
+                Number(
+                    localStorage.getItem(
+                        "fontSize"
+                    )
+                ) || defaultFontSize;
+
+
+            if (
+                fontSize >
+                minimumFontSize
+            ) {
+
+                fontSize -= fontSizeStep;
+
+            }
+
+
+            localStorage.setItem(
+                "fontSize",
+                fontSize
+            );
+
+
+            applyFontSize();
+
+        }
+    );
+
+}
+
+
+// Apply saved font size
+
+applyFontSize();
+
+
+// =========================
 // Start microphone tuner
+// =========================
+
 async function startTuner() {
 
     try {
 
-        console.log("Starting microphone...");
+        console.log(
+            "Starting microphone..."
+        );
 
 
-        // Change button immediately after click
         if (startBtn) {
 
-            startBtn.innerText = "Listening...";
+            startBtn.innerText =
+                "Listening...";
+
             startBtn.disabled = true;
 
         }
@@ -54,7 +338,9 @@ async function startTuner() {
         isRunning = true;
 
 
-        console.log("Tuner running");
+        console.log(
+            "Tuner running"
+        );
 
 
         tunerLoop();
@@ -62,14 +348,17 @@ async function startTuner() {
 
     } catch (error) {
 
+        console.error(
+            "Could not start tuner:",
+            error
+        );
 
-        console.error("Could not start tuner:", error);
 
-
-        // Restore button if microphone fails
         if (startBtn) {
 
-            startBtn.innerText = "🎤 Start Tuner";
+            startBtn.innerText =
+                "Start Tuner";
+
             startBtn.disabled = false;
 
         }
@@ -79,52 +368,63 @@ async function startTuner() {
 }
 
 
-
+// =========================
 // Main tuner loop
+// =========================
+
 function tunerLoop() {
 
-
     if (!isRunning) {
+
         return;
+
     }
 
 
-    const buffer = getAudioBuffer();
+    const buffer =
+        getAudioBuffer();
 
-    const sampleRate = getSampleRate();
+    const sampleRate =
+        getSampleRate();
 
 
-    // Wait until microphone data exists
+    // Wait for microphone data
+
     if (!buffer) {
 
-        requestAnimationFrame(tunerLoop);
+        requestAnimationFrame(
+            tunerLoop
+        );
 
         return;
+
     }
 
 
+    // Detect pitch
 
-    const frequency = detectPitch(
-        buffer,
-        sampleRate
-    );
-
+    const frequency =
+        detectPitch(
+            buffer,
+            sampleRate
+        );
 
 
     if (frequency !== -1) {
 
-
-        const targetString = getString(selectedString);
-
+        const targetString =
+            getString(
+                selectedString
+            );
 
 
         if (targetString) {
 
-
-            const cents = getTuningStatus(
-                frequency,
-                targetString.frequency
-            );
+            const cents =
+                getTuningStatus(
+                    frequency,
+                    targetString.frequency
+                );
 
 
             updateDisplay(
@@ -133,13 +433,9 @@ function tunerLoop() {
                 cents
             );
 
-
         }
 
-
-
     } else {
-
 
         updateDisplay(
             null,
@@ -147,74 +443,89 @@ function tunerLoop() {
             0
         );
 
-
     }
 
 
+    // Continue tuner loop
 
-    requestAnimationFrame(tunerLoop);
+    requestAnimationFrame(
+        tunerLoop
+    );
 
 }
 
 
-
-
+// =========================
 // Start button
+// =========================
+
 if (startBtn) {
 
+    startBtn.addEventListener(
+        "click",
+        () => {
 
-    startBtn.addEventListener("click", () => {
+            if (!isRunning) {
 
+                startTuner();
 
-        if (!isRunning) {
-
-            startTuner();
+            }
 
         }
-
-
-    });
-
+    );
 
 }
 
 
+// =========================
+// String selection
+// =========================
+
+const stringButtons =
+    document.querySelectorAll(
+        ".string-btn"
+    );
 
 
-// String selection buttons
-document
-    .querySelectorAll(".string-btn")
-    .forEach(button => {
+stringButtons.forEach(
+    button => {
+
+        button.addEventListener(
+            "click",
+            () => {
+
+                selectedString =
+                    button.dataset.note;
 
 
-        button.addEventListener("click", () => {
+                // Remove selected
+                // from all buttons
+
+                stringButtons.forEach(
+                    btn => {
+
+                        btn.classList.remove(
+                            "selected"
+                        );
+
+                    }
+                );
 
 
-            selectedString = button.dataset.note;
+                // Select current button
+
+                button.classList.add(
+                    "selected"
+                );
 
 
+                console.log(
+                    "Selected:",
+                    selectedString
+                );
 
-            document
-                .querySelectorAll(".string-btn")
-                .forEach(btn => {
+            }
+        );
 
-                    btn.classList.remove("selected");
-
-                });
-
-
-
-            button.classList.add("selected");
-
-
-
-            console.log(
-                "Selected:",
-                selectedString
-            );
-
-
-        });
-
-
-    });
+    }
+);

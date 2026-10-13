@@ -3,9 +3,12 @@
 // Import
 import { getTuningMessage } from "./tuner.js";
 
-// Success tone (plays once when note becomes in tune)
+// Success tone
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 let wasInTune = false;
+
+// Timer for keeping the display visible
+let displayTimeout = null;
 
 function playInTuneTone() {
     if (audioCtx.state === "suspended") {
@@ -16,7 +19,7 @@ function playInTuneTone() {
     const gain = audioCtx.createGain();
 
     osc.type = "sine";
-    osc.frequency.value = 880; // A5 confirmation tone
+    osc.frequency.value = 880;
 
     gain.gain.setValueAtTime(0.0001, audioCtx.currentTime);
     gain.gain.exponentialRampToValueAtTime(
@@ -46,19 +49,32 @@ export function updateDisplay(noteName, frequency, cents) {
     // No detected note
     if (!noteName) {
 
-        noteEl.innerText = "--";
-        freqEl.innerText = "0.0 Hz";
-        centsEl.innerText = "0¢";
-        statusEl.innerText = "Listening...";
+        // Keep the last display visible for 15 seconds
+        if (displayTimeout) {
+            clearTimeout(displayTimeout);
+        }
 
-        statusEl.className = "status-display";
-        meter.style.left = "50%";
+        displayTimeout = setTimeout(() => {
 
-        // Allow the confirmation tone to play
-        // when the next note becomes in tune
-        wasInTune = false;
+            noteEl.innerText = "--";
+            freqEl.innerText = "0.0 Hz";
+            centsEl.innerText = "0¢";
+            statusEl.innerText = "Listening...";
+
+            statusEl.className = "status-display";
+            meter.style.left = "50%";
+
+            wasInTune = false;
+
+        }, 15000);
 
         return;
+    }
+
+    // A new note was detected, so cancel the previous timeout
+    if (displayTimeout) {
+        clearTimeout(displayTimeout);
+        displayTimeout = null;
     }
 
     // Display detected note information
@@ -81,7 +97,6 @@ export function updateDisplay(noteName, frequency, cents) {
         statusEl.classList.add("status-tuned");
 
         // Play confirmation tone only once
-        // when entering the in-tune range
         if (!wasInTune) {
             playInTuneTone();
             wasInTune = true;
@@ -99,13 +114,11 @@ export function updateDisplay(noteName, frequency, cents) {
 
     } else if (tuning.state === "danger") {
 
-        // More than 40 cents sharp
         statusEl.classList.add("status-danger");
         wasInTune = false;
 
     } else {
 
-        // Neutral / Listening
         wasInTune = false;
     }
 
